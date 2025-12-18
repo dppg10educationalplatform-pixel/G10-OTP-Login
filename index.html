@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>G10 OTP Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f5f5f5;
+    }
+    input { padding: 10px; width: 200px; margin: 10px 0; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    .links { margin-top: 30px; }
+  </style>
+</head>
+<body>
+
+<h2>Login with Phone Number</h2>
+<input type="text" id="phone" placeholder="Enter phone number" />
+<div id="recaptcha-container"></div>
+<button onclick="sendOTP()">Send OTP</button>
+
+<div class="links" id="linkButtons" style="display:none;">
+  <h3>Quick Links</h3>
+  <button onclick="window.location.href='https://example.com/link1'">Link 1</button>
+  <button onclick="window.location.href='https://example.com/link2'">Link 2</button>
+  <button onclick="window.location.href='https://example.com/link3'">Link 3</button>
+  <button onclick="window.location.href='https://example.com/link4'">Link 4</button>
+  <button onclick="window.location.href='https://example.com/link5'">Link 5</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+// Replace with your Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCSd5L2hN0HyFJKRJQ8IfkhLjz4wlvuGWs",
+  authDomain: "g10-otp-login.firebaseapp.com",
+  projectId: "g10-otp-login",
+  storageBucket: "g10-otp-login.firebasestorage.app",
+  messagingSenderId: "823720449640",
+  appId: "1:823720449640:web:0bd3389bc5842c61e10ddd",
+  measurementId: "G-EPYBTMYWSM"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Allowed Firebase test numbers
+const allowedNumbers = ["+919706380357", "+917099050509"];
+
+// Render visible reCAPTCHA (works locally and on Render)
+window.recaptchaVerifier = new RecaptchaVerifier(
+  'recaptcha-container',
+  { 'size': 'normal' }, // visible checkbox
+  auth
+);
+window.recaptchaVerifier.render();
+
+window.sendOTP = function() {
+  const phoneInput = document.getElementById("phone").value.trim();
+  const phoneNumber = "+91" + phoneInput;
+
+  if (!allowedNumbers.includes(phoneNumber)) {
+    alert("This number is not allowed");
+    return;
+  }
+
+  const appVerifier = window.recaptchaVerifier;
+
+  signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+    .then((confirmationResult) => {
+      const code = prompt("Enter OTP (for testing use Firebase test OTP: 111111 or 222222)");
+      return confirmationResult.confirm(code);
+    })
+    .then(() => {
+      alert("Logged in successfully!");
+      document.getElementById("linkButtons").style.display = "block";
+    })
+    .catch((error) => {
+      console.error(error);
+      alert("Error: " + error.message);
+    });
+};
+</script>
+
+</body>
+</html>
