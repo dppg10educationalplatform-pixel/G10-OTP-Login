@@ -74,7 +74,8 @@ window.sendOTP = function() {
 
   signInWithPhoneNumber(auth, phoneNumber, appVerifier)
     .then((confirmationResult) => {
-      const code = prompt("Enter OTP (for testing use Firebase test OTP: 111111 or 222222)");
+      const code = prompt("Enter the OTP sent to your phone");
+
       return confirmationResult.confirm(code);
     })
     .then(() => {
